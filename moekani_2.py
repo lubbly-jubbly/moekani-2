@@ -6,13 +6,19 @@ import re
 import genanki
 import csv
 import json
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 def get_wanikani_data():
+    wanikani_api_token = os.getenv("WANIKANI_API_TOKEN")
+
     data = []
     for n in range(4,5):
         # url = 'https://api.wanikani.com/v2/subjects?page_after_id=' + str(1000 * n)
         url = 'https://api.wanikani.com/v2/subjects'
-        api_token = 'f5f31e87-1905-4cf8-9b16-d4736d8de55a'
+        api_token = wanikani_api_token
         headers = {'Authorization': 'Bearer ' + api_token}
 
         params = {
@@ -29,7 +35,7 @@ def get_wanikani_data():
 
 wanikani_data = get_wanikani_data()
 # print(json.dumps(wanikani_data[17], indent=4))
-print(json.dumps(wanikani_data, indent=4))
+# print(json.dumps(wanikani_data, indent=4))
 
 audio_files = download_wanikani_audio_files(wanikani_data)
 

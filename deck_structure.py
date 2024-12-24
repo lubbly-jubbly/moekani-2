@@ -12,6 +12,7 @@ model = genanki.Model(
     model_id=1234567891, 
     name="Moekani Model",
     fields=[
+        {"name": "ID"},
         {"name": "Type"},
         {"name": "Radical"},
         {"name": "Radical_Image"},
@@ -58,6 +59,27 @@ model = genanki.Model(
                 {{#Vocab}}
                     <div class="vocab"><br>{{Vocab}}<br><br></div>
                 {{/Vocab}}
+                {{#Expression}}
+                    <div class="tag">
+                        基本{{#Tags}}｜{{/Tags}}{{Tags}}
+                    </div>
+
+                    {{^Audio on Front}}
+                        <div class="japanese">
+                            {{furigana:Expression}}
+                        </div>
+                    {{/Audio on Front}}
+
+                    {{#Audio on Front}}{{^Audio}}
+                        <div class="japanese">
+                            {{furigana:Expression}}
+                        </div>
+                    {{/Audio}}{{/Audio on Front}}
+
+                    {{#Audio on Front}}
+                        {{Audio}}
+                    {{/Audio on Front}}
+                {{/Expression}}
             """,
             "afmt": """
                 {{#Radical}}
@@ -105,76 +127,143 @@ model = genanki.Model(
                     <span class="context">{{Context3_jp}}</span><br>
                     <span class="text">{{Context3_en}}</span><p>
                 {{/Vocab}}
+
+                {{#Expression}}
+                    <div class="tag">
+                        基本{{#Tags}}｜{{/Tags}}{{Tags}}
+                    </div>
+
+                    {{^Audio on Front}}
+                        <div class="japanese">
+                            {{furigana:Expression}}
+                        </div>
+                    {{/Audio on Front}}
+
+                    {{#Audio on Front}}{{^Audio}}
+                        <div class="japanese">
+                            {{furigana:Expression}}
+                        </div>
+                    {{/Audio}}{{/Audio on Front}}
+
+                    {{#Audio on Front}}
+                        {{Audio}}
+                    {{/Audio on Front}}
+                    {{FrontSide}}
+                    <hr id=answer>
+
+                    {{#Reading}}
+                        <div class="japanese">
+                            {{furigana:Reading}}
+                        </div>
+                    {{/Reading}}
+                    <div class="meaning">
+                        {{furigana:Meaning}}
+                    </div>
+
+                    {{^Audio on Front}}
+                        {{Audio}}
+                    {{/Audio on Front}}
+                {{/Expression}}
             """
         }
     ],
     css=""".card {
-        font-family: "Segoe UI", "Roboto", sans-serif;
-        font-size: 16px;
-        text-align: center;
-        color: #969696;
-    }
+    font-family: "Segoe UI", "Roboto", sans-serif;
+    font-size: 16px;
+    text-align: center;
+    color: #969696;
+}
 
-    .radical {
-        font-family: "Meiryo", "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
-        font-size: 70px;
-        color: #FFFFFF;
-        line-height: 100px;
-        background-color: #4188F1;
-    }
+.radical {
+    font-family: "Meiryo", "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+    font-size: 70px;
+    color: #FFFFFF;
+    line-height: 100px;
+    background-color: #4188F1;
+}
 
-    .kanji {
-        font-family: "Meiryo", "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
-        font-size: 70px;
-        color: #FFFFFF;
-        line-height: 100px;
-        background-color: #EB417D;
-    }
+.kanji {
+    font-family: "Meiryo", "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+    font-size: 70px;
+    color: #FFFFFF;
+    line-height: 100px;
+    background-color: #EB417D;
+}
 
-    .vocab {
-        font-family: "Meiryo", "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
-        font-size: 40px;
-        color: #FFFFFF;
-        line-height: 100px;
-        background-color: #833EA8;
-    }
+.vocab {
+    font-family: "Meiryo", "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+    font-size: 40px;
+    color: #FFFFFF;
+    line-height: 100px;
+    background-color: #833EA8;
+}
 
-    .hiragana {
-        font-family: "Meiryo", "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
-        font-size: 20px;
-    }
+.hiragana {
+    font-family: "Meiryo", "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+    font-size: 20px;
+}
 
-    .title {
-        font-family: "Segoe UI", "Roboto", sans-serif;
-        font-size: 26px;
-    }
+.title {
+    font-family: "Segoe UI", "Roboto", sans-serif;
+    font-size: 26px;
+}
 
-    .text {
-        font-family: "Segoe UI", "Roboto", sans-serif;
-    }
-    
-    .text2 {
-        font-family: "Segoe UI", "Roboto", sans-serif;
-        font-size: 13px;
-    }
+.text {
+    font-family: "Segoe UI", "Roboto", sans-serif;
+}
 
-    @font-face { font-family: Noto Sans JP; src: url('_NotoSansJP-Regular.otf'); }
+.text2 {
+    font-family: "Segoe UI", "Roboto", sans-serif;
+    font-size: 13px;
+}
 
-    radical {
-        font-weight: bold;
-        color: #4188F1;
-    }
+@font-face { font-family: Noto Sans JP; src: url('_NotoSansJP-Regular.otf'); }
 
-    kanji {
-        font-weight: bold;
-        color: #EB417D;
-    }
+radical {
+    font-weight: bold;
+    color: #4188F1;
+}
 
-    vocab {
-        font-weight: bold;
-        color: #833EA8;
-    }
-    """
+kanji {
+    font-weight: bold;
+    color: #EB417D;
+}
+
+vocab {
+    font-weight: bold;
+    color: #833EA8;
+}
+
+@font-face {
+font-family: "IPAexGothic";
+src: url("_ipaexg.ttf") ;
+}
+
+.card {
+ //font-family:"IPAexGothic", IPAex Gothic;
+ font-size: 22px;
+ background-color:#FFFAF0;
+ text-align: left;
+ color:#333;
+}
+
+.tag {
+  color:#585858; 
+  font-size: 20px
+}
+
+.japanese {
+  font-size: 35px;
+}
+.meaning {
+  margin-top: 36px;
+  font-size: 22px;
+}
+
+b {
+  font-family: "IPAexGothic";
+  color:#000;
+}"""
 )
 
 def get_component_radicals(wanikani_data, wanikani_item):

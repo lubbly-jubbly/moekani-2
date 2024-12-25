@@ -40,11 +40,10 @@ model = genanki.Model(
         {"name": "Context3_jp"},
         {"name": "Meaning_Exp"},
         {"name": "Reading_Exp"},
-        {"name": "Expression"}, 
-        {"name": "Reading"}, 
-        {"name": "Meaning"}, 
-        {"name": "Audio"}, 
-        {"name": "Audio on Front"}
+        {"name": "Sentence_jp"}, 
+        {"name": "Sentence_Reading"}, 
+        {"name": "Sentence_en"}, 
+        {"name": "Sentence_Audio"}, 
     ],
     templates=[
         {
@@ -59,27 +58,12 @@ model = genanki.Model(
                 {{#Vocab}}
                     <div class="vocab"><br>{{Vocab}}<br><br></div>
                 {{/Vocab}}
-                {{#Expression}}
-                    <div class="tag">
-                        基本{{#Tags}}｜{{/Tags}}{{Tags}}
+                {{#Sentence_jp}}
+                    <div class="japanese">
+                        {{Sentence_jp}}
                     </div>
-
-                    {{^Audio on Front}}
-                        <div class="japanese">
-                            {{furigana:Expression}}
-                        </div>
-                    {{/Audio on Front}}
-
-                    {{#Audio on Front}}{{^Audio}}
-                        <div class="japanese">
-                            {{furigana:Expression}}
-                        </div>
-                    {{/Audio}}{{/Audio on Front}}
-
-                    {{#Audio on Front}}
-                        {{Audio}}
-                    {{/Audio on Front}}
-                {{/Expression}}
+                    {{Sentence_Audio}}
+                {{/Sentence_jp}}
             """,
             "afmt": """
                 {{#Radical}}
@@ -128,42 +112,23 @@ model = genanki.Model(
                     <span class="text">{{Context3_en}}</span><p>
                 {{/Vocab}}
 
-                {{#Expression}}
-                    <div class="tag">
-                        基本{{#Tags}}｜{{/Tags}}{{Tags}}
+                {{#Sentence_jp}}
+                    <div class="japanese">
+                        {{Sentence_jp}}
                     </div>
 
-                    {{^Audio on Front}}
-                        <div class="japanese">
-                            {{furigana:Expression}}
-                        </div>
-                    {{/Audio on Front}}
-
-                    {{#Audio on Front}}{{^Audio}}
-                        <div class="japanese">
-                            {{furigana:Expression}}
-                        </div>
-                    {{/Audio}}{{/Audio on Front}}
-
-                    {{#Audio on Front}}
-                        {{Audio}}
-                    {{/Audio on Front}}
-                    {{FrontSide}}
+                    {{Sentence_Audio}}
                     <hr id=answer>
 
-                    {{#Reading}}
+                    {{#Sentence_Reading}}
                         <div class="japanese">
-                            {{furigana:Reading}}
+                            {{furigana:Sentence_Reading}}
                         </div>
-                    {{/Reading}}
+                    {{/Sentence_Reading}}
                     <div class="meaning">
-                        {{furigana:Meaning}}
+                        {{Sentence_en}}
                     </div>
-
-                    {{^Audio on Front}}
-                        {{Audio}}
-                    {{/Audio on Front}}
-                {{/Expression}}
+                {{/Sentence_jp}}
             """
         }
     ],
@@ -279,43 +244,56 @@ def get_component_radicals(wanikani_data, wanikani_item):
 def get_card_meaning(wanikani_item):
     return wanikani_item['data']['meanings'][0]['meaning']
 
-def get_fields_mapping(wanikani_data, wanikani_item):
-    match wanikani_item['object']:
+def get_fields_mapping(data, item):
+    match item['object']:
         case 'radical':
             return {
                 "Type": 'radical',
-                "Radical": wanikani_item['data']['characters'],
-                "Radical_Name": wanikani_item['data']['meanings'][0]['meaning'],
-                "Radical_Mnemonic": wanikani_item['data']['meaning_mnemonic'],
+                "Radical": item['data']['characters'],
+                "Radical_Name": item['data']['meanings'][0]['meaning'],
+                "Radical_Mnemonic": item['data']['meaning_mnemonic'],
             }
         case 'kanji':
             return {
                 "Type": 'kanji',                
-                "Kanji": wanikani_item['data']['slug'],
-                "Kanji_Meaning": wanikani_item['data']['meanings'][0]['meaning'],
-                "Reading_On": ", ".join([x['reading'] for x in wanikani_item['data']['readings'] if x['type'] == "onyomi"]),
-                "Reading_Kun": ", ".join([x['reading'] for x in wanikani_item['data']['readings'] if x['type'] == "kunyomi"]),  
-                "Radicals": get_component_radicals(wanikani_data, wanikani_item)[0],
-                "Radical_Names": get_component_radicals(wanikani_data, wanikani_item)[1],
-                "Kanji_Mnemonic": wanikani_item['data']['meaning_mnemonic'],
-                "Kanji_Mnemonic_Bonus": wanikani_item['data']['meaning_hint'] or '',
+                "Kanji": item['data']['slug'],
+                "Kanji_Meaning": item['data']['meanings'][0]['meaning'],
+                "Reading_On": ", ".join([x['reading'] for x in item['data']['readings'] if x['type'] == "onyomi"]),
+                "Reading_Kun": ", ".join([x['reading'] for x in item['data']['readings'] if x['type'] == "kunyomi"]),  
+                "Radicals": get_component_radicals(data, item)[0],
+                "Radical_Names": get_component_radicals(data, item)[1],
+                "Kanji_Mnemonic": item['data']['meaning_mnemonic'],
+                "Kanji_Mnemonic_Bonus": item['data']['meaning_hint'] or '',
             }
         case 'vocabulary':
             return {
                 "Type": 'vocab',
-                "Vocab": wanikani_item['data']['characters'],
-                "Meaning": wanikani_item['data']['meanings'][0]['meaning'],
-                "Part_Of_Speech": ', '.join(wanikani_item['data']['parts_of_speech']),
-                "Reading": wanikani_item['data']['readings'][0]['reading'],  
-                "Context1_en": wanikani_item['data']['context_sentences'][0]['en'],
-                "Context1_jp": wanikani_item['data']['context_sentences'][0]['ja'],
-                "Context2_en": wanikani_item['data']['context_sentences'][1]['en'] if len(wanikani_item['data']['context_sentences']) > 1 else '',
-                "Context2_jp": wanikani_item['data']['context_sentences'][1]['ja'] if len(wanikani_item['data']['context_sentences']) > 1 else '',
-                "Context3_en": wanikani_item['data']['context_sentences'][2]['en'] if len(wanikani_item['data']['context_sentences']) > 2 else '',
-                "Context3_jp": wanikani_item['data']['context_sentences'][2]['ja'] if len(wanikani_item['data']['context_sentences']) > 2 else '',
-                "Meaning_Exp": wanikani_item['data']['meaning_mnemonic'],
-                "Reading_Exp": wanikani_item['data']['reading_mnemonic'],
-                "Audio": f"[sound:{get_audio_file_path(wanikani_item['id'])}]"
+                "Vocab": item['data']['characters'],
+                "Meaning": item['data']['meanings'][0]['meaning'],
+                "Part_Of_Speech": ', '.join(item['data']['parts_of_speech']),
+                "Reading": item['data']['readings'][0]['reading'],  
+                "Context1_en": item['data']['context_sentences'][0]['en'],
+                "Context1_jp": item['data']['context_sentences'][0]['ja'],
+                "Context2_en": item['data']['context_sentences'][1]['en'] if len(item['data']['context_sentences']) > 1 else '',
+                "Context2_jp": item['data']['context_sentences'][1]['ja'] if len(item['data']['context_sentences']) > 1 else '',
+                "Context3_en": item['data']['context_sentences'][2]['en'] if len(item['data']['context_sentences']) > 2 else '',
+                "Context3_jp": item['data']['context_sentences'][2]['ja'] if len(item['data']['context_sentences']) > 2 else '',
+                "Meaning_Exp": item['data']['meaning_mnemonic'],
+                "Reading_Exp": item['data']['reading_mnemonic'],
+                "Audio": f"[sound:{get_audio_file_path(item['id'])}]"
+            }
+        case 'moe':
+            return {
+                "Type": 'sentence',
+                "Sentence_jp": item['Expression'], 
+                "Sentence_Reading": item['Reading'], 
+                "Sentence_en": item['Meaning'], 
+                "Sentence_Audio": item['Audio'], 
+                # "Sentence_jp": 'hi', 
+                # "Sentence_Reading": 'hey', 
+                # "Sentence_en": 'hello', 
+                # "Sentence_Audio": 'great', 
+                # "Sentence_Front_Audio": 'no',
             }
         case _:
             return "Error! Object not recognised"

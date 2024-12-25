@@ -18,8 +18,7 @@ def get_wanikani_data():
     for n in range(0,1):
         url = 'https://api.wanikani.com/v2/subjects?page_after_id=' + str(1000 * n)
         # url = 'https://api.wanikani.com/v2/subjects'
-        api_token = wanikani_api_token
-        headers = {'Authorization': 'Bearer ' + api_token}
+        headers = {'Authorization': 'Bearer ' + wanikani_api_token}
 
         params = {
             # 'page_after_id': 1000 * n,
@@ -114,7 +113,6 @@ for radical_card in wanikani_radical_cards:
 
 
 def create_card_and_add_to_deck(card, sort_index):
-    print(sort_index)
     fields = []
     card['ID'] = str(sort_index)
     for field in model.fields:
@@ -147,9 +145,11 @@ for index, moe_card in enumerate(moe_cards):
         create_card_and_add_to_deck(vocab_card, sort_index)
         sort_index += 1
     
-    moe_card['Type'] = 'sentence'
-    moe_card['Audio'] = ''
-    create_card_and_add_to_deck(moe_card, sort_index)
+    moe_card['object'] = 'moe'
+    # moe_card['Audio'] = ''
+
+    moe_card_mapped_to_deck_structure = get_fields_mapping(moe_cards, moe_card)
+    create_card_and_add_to_deck(moe_card_mapped_to_deck_structure, sort_index)
     sort_index += 1
 
 

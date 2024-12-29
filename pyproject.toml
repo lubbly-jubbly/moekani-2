@@ -11,8 +11,16 @@ requests = "^2.32.3"
 genanki = "^0.13.1"
 pydub = "^0.25.1"
 python-dotenv = "^1.0.1"
+black = "^24.10.0"
+isort = "^5.13.2"
 
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 88
+
+[tool.isort]
+profile="black"
